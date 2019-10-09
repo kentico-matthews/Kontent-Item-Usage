@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ItemUsageHelper
+namespace ItemUsage
 {
     public class ElementDetails
     {

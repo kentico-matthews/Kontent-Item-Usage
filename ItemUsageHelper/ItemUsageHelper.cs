@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Kentico.Kontent.Delivery;
 using Newtonsoft.Json.Linq;
-namespace ItemUsageHelper
+namespace ItemUsage
 {
     public class ItemUsageHelper
     {
