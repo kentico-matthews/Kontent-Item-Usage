@@ -57,7 +57,7 @@ namespace ItemUsageConsoleApp
             Console.WriteLine("used OPTIONAL_CSV_OUTPUT_FILE_PATH");
             Console.WriteLine();
             
-            Console.WriteLine("-To list modular content elements which exist in your project, enter:");
+            Console.WriteLine("-To list modular content and rich text elements which exist in your project, enter:");
             Console.WriteLine("elements OPTIONAL_CSV_OUTPUT_FILE_PATH");
         }
 
@@ -184,7 +184,7 @@ namespace ItemUsageConsoleApp
         }
 
         /// <summary>
-        /// Lists linked item elements in console
+        /// Lists linked item and rich text elements in console
         /// </summary>
         protected void GetElements()
         {
@@ -192,13 +192,13 @@ namespace ItemUsageConsoleApp
             if (Helper != null)
             {
                 var items = Helper.GetModularElements();
-                Console.WriteLine("Modular Elements (Element Codename, Element Name, Content Type Codename, Content Type Name):");
+                Console.WriteLine("Modular Elements (Element Codename, Element Name, Element Type, Content Type Codename, Content Type Name):");
                 WriteItems(items);
             }
         }
 
         /// <summary>
-        /// lists linked item elements in console and writes them to csv file
+        /// lists linked item and rich text elements in console and writes them to csv file
         /// </summary>
         /// <param name="path">Path of the csv file to create</param>
         protected void GetElements(string path)
@@ -209,7 +209,7 @@ namespace ItemUsageConsoleApp
                 var items = Helper.GetModularElements();
                 WriteCSV(items, path);
                 Console.WriteLine($"File {path} created.");
-                Console.WriteLine("Modular Elements (Element Codename, Element Name, Content Type Codename, Content Type Name):");
+                Console.WriteLine("Modular Elements (Element Codename, Element Name, Element Type, Content Type Codename, Content Type Name):");
                 WriteItems(items);
             }
         }
@@ -293,6 +293,7 @@ namespace ItemUsageConsoleApp
                 {
                     Console.WriteLine(item.Codename);
                     Console.WriteLine(item.Name);
+                Console.WriteLine(item.ElementType);
                     Console.WriteLine(item.ContentTypeCodename);
                     Console.WriteLine(item.ContentTypeName);
                     Console.WriteLine();
@@ -328,10 +329,10 @@ namespace ItemUsageConsoleApp
         protected void WriteCSV(List<ElementDetails> list, string path)
         {
             StringBuilder csv = new StringBuilder();
-            csv.AppendLine("Element Codename,Element Name,Content Type Codename,Content Type Name");
+            csv.AppendLine("Element Codename,Element Name,Element Type,Content Type Codename,Content Type Name");
             foreach (ElementDetails item in list)
             {
-                csv.AppendLine($"{item.Codename},{item.Name},{item.ContentTypeCodename},{item.ContentTypeName}");
+                csv.AppendLine($"{item.Codename},{item.Name},{item.ElementType},{item.ContentTypeCodename},{item.ContentTypeName}");
             }
             try
             {

@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Kentico.Kontent.Delivery;
 using Newtonsoft.Json.Linq;
 namespace ItemUsage
 {
     public class ItemUsageHelper
     {
+        const string RICHTEXT = "rich_text";
+        const string MODULAR = "modular_content";
+
         public IDeliveryClient Client { get; set; }
 
         public IReadOnlyList<ContentType> Types;
-        public IEnumerable<ContentItem> AllItems;
+        public List<ContentItem> AllItems;
         public Dictionary<string, string> UsedItems;
         public List<KeyValuePair<string, string>> UnusedItems;
         public List<ElementDetails> ModularElements;
@@ -25,6 +29,7 @@ namespace ItemUsage
             Client = DeliveryClientBuilder.WithProjectId(projectID).Build();
             ModularElements = new List<ElementDetails>();
             UsedItems = new Dictionary<string, string>();
+            AllItems = new List<ContentItem>();
         }
 
         /// <summary>
@@ -41,6 +46,7 @@ namespace ItemUsage
             .Build();
             ModularElements = new List<ElementDetails>();
             UsedItems = new Dictionary<string, string>();
+            AllItems = new List<ContentItem>();
         }
 
         /// <summary>
@@ -87,12 +93,25 @@ namespace ItemUsage
                 foreach (KeyValuePair<string, ContentElement> elem in type.Elements)
                 {
 
-                    if (elem.Value.Type.Equals("modular_content"))
+                    if (elem.Value.Type.Equals(MODULAR))
                     {
                         ElementDetails newElement = new ElementDetails
                         {
                             Codename = elem.Key,
                             Name = elem.Value.Name,
+                            ElementType=MODULAR,
+                            ContentTypeCodename = type.System.Codename,
+                            ContentTypeName = type.System.Name
+                        };
+                        ModularElements.Add(newElement);
+                    }
+                    else if (elem.Value.Type.Equals(RICHTEXT))
+                    {
+                        ElementDetails newElement = new ElementDetails
+                        {
+                            Codename = elem.Key,
+                            Name = elem.Value.Name,
+                            ElementType=RICHTEXT,
                             ContentTypeCodename = type.System.Codename,
                             ContentTypeName = type.System.Name
                         };
@@ -108,12 +127,19 @@ namespace ItemUsage
         /// </summary>
         protected virtual void FindAllItems()
         {
-            var response = Client.GetItemsAsync(new ElementsParameter(ModularElementNames.ToArray()), new DepthParameter(0)).Result;
-            AllItems = response.Items;
+            IDeliveryItemsFeed feed = Client.GetItemsFeed(new ElementsParameter(ModularElementNames.ToArray()));
+            while (feed.HasMoreResults)
+            {
+                DeliveryItemsFeedResponse response = feed.FetchNextBatchAsync().Result;
+                foreach (ContentItem item in response)
+                {
+                    AllItems.Add(item);
+                }
+            }
         }
 
         /// <summary>
-        /// Figures out which items are referenced by any modular fields
+        /// Figures out which items are referenced by any modular/richtext fields
         /// </summary>
         protected virtual void FindUsedITems()
         {
@@ -124,13 +150,28 @@ namespace ItemUsage
                     var modularElement = item.Elements[elem];
                     if (modularElement != null)
                     {
-                        JArray modularItems = (JArray)modularElement["value"];
-                        for (int i = 0; i < modularItems.Count; i++)
+                        if (modularElement["type"].ToString().Equals(MODULAR))
                         {
-                            string codename = modularElement["value"][i].ToString();
-                            if (!UsedItems.Keys.Contains(codename))
+                            JArray modularItems = (JArray)modularElement["value"];
+                            for (int i = 0; i < modularItems.Count; i++)
                             {
-                                UsedItems.Add(codename, GetDisplayName(codename));
+                                string codename = modularElement["value"][i].ToString();
+                                if (!UsedItems.Keys.Contains(codename))
+                                {
+                                    UsedItems.Add(codename, GetDisplayName(codename));
+                                }
+                            }
+                        }
+                        else if (modularElement["type"].ToString().Equals(RICHTEXT))
+                        {
+                            JArray modularItems = (JArray)modularElement[MODULAR];
+                            for (int i = 0; i < modularItems.Count; i++)
+                            {
+                                string codename = modularElement[MODULAR][i].ToString();
+                                if (!UsedItems.Keys.Contains(codename))
+                                {
+                                    UsedItems.Add(codename, GetDisplayName(codename));
+                                }
                             }
                         }
                     }

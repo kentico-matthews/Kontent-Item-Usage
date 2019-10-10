@@ -17,6 +17,11 @@ namespace ItemUsage
         public string Name { get; set; }
 
         /// <summary>
+        /// The content element type (rich_text or modular_content)
+        /// </summary>
+        public string ElementType { get; set; }
+
+        /// <summary>
         /// Codename of the content type that the element belongs to
         /// </summary>
         public string ContentTypeCodename { get; set; }

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Kentico.Kontent.Delivery" Version="11.0.3" />
+    <PackageReference Include="Kentico.Kontent.Delivery" Version="12.1.0" />
   </ItemGroup>
 
 </Project>
