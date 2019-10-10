@@ -15,8 +15,10 @@ It can be used as sample code, or added to your project as a class library.
 	// Lists the codename (key) and display name (value) of items which are referenced by other items 
 	List<KeyValuePair<string, string>> used = references.GetUsedItems();  
 
+	//item usage helper that only works with published data
 	var publicreferences = new ItemUsageHelper(projectID);
+
 	// Lists the codename (key) and display name (value) of published items which are not referenced by other published items
-	List<KeyValuePair<string, string>> unused = references.GetUnusedItems();
+	List<KeyValuePair<string, string>> unused = publicreferences.GetUnusedItems();
 
   
